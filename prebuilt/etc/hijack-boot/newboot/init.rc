@@ -7,9 +7,7 @@ on early-init
     mkdir /mnt/sdcard 0000 system system
 
 on init
-
 sysclktz 0
-
 loglevel 8
 
 # setup the global environment
@@ -444,8 +442,8 @@ service servicemanager /system/bin/servicemanager
     critical
     onrestart restart zygote
     onrestart restart media
-    onrestart restart surfaceflinger
-    onrestart restart drm
+ #   onrestart restart surfaceflinger
+ #   onrestart restart drm
 
 service vold /system/bin/vold
     class core
@@ -456,8 +454,8 @@ service netd /system/bin/netd
     class main
     socket netd stream 0660 root system
     socket dnsproxyd stream 0660 root inet
-    socket netlink stream 0660 root system
-    socket quota2 stream 0660 root system
+ #   socket netlink stream 0660 root system
+ #   socket quota2 stream 0660 root system
 
 service debuggerd /system/bin/debuggerd
     class main
