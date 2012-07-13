@@ -5,17 +5,12 @@ DEVICE_PREBUILT := device/motorola/venus2/prebuilt
 PRODUCT_AAPT_CONFIG := normal mdpi
 PRODUCT_AAPT_PREF_CONFIG := mdpi
 
-# Camera
-#PRODUCT_PACKAGES := \
-#	Camera
-
 # Audio
 PRODUCT_COPY_FILES += \
     device/motorola/venus2/audio/libaudio.so:/system/lib/libaudio.so \
     device/motorola/venus2/audio/liba2dp.so:/system/lib/liba2dp.so
 
 PRODUCT_PACKAGES += \
-    sensors.venus2 \
     audio.primary.omap3 \
     libaudiohw_legacy \
     audio.a2dp.default \
@@ -65,8 +60,9 @@ $(call inherit-product, device/common/gps/gps_us_supl.mk)
 # Inherit from maguro device
 $(call inherit-product, device/motorola/venus2/device.mk)
 
-# Set those variables here to overwrite the inherited values.
-PRODUCT_NAME := full_venus2
+## Device identifier. This must come after all inclusions
 PRODUCT_DEVICE := venus2
+PRODUCT_NAME := cm_venus2
 PRODUCT_BRAND := verizon
 PRODUCT_MODEL := DROID Pro
+PRODUCT_MANUFACTURER := Motorola
