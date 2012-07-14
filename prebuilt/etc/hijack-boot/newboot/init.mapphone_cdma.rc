@@ -50,7 +50,7 @@ on post-fs
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 300000
     write /sys/devices/system/cpu/cpu0/cpufreq/ondemand/up_threshold 95
     write /sys/devices/system/cpu/cpu0/cpufreq/ondemand/sampling_rate 37500
-#    write /sys/power/sr_vdd1_autocomp 1
+    write /sys/power/sr_vdd1_autocomp 1
     write /sys/power/sr_vdd2_autocomp 1
 # Change ownership for vibrators
     chown system system /sys/class/timed_output/vibrator/enable
@@ -61,7 +61,7 @@ on post-fs
 # Mount mtd partitions
     # mount /pds as r/w
     # We chown/chmod /pds again so because mount is run as root + defaults
-#    mount yaffs2 mtd@pds /pds nosuid nodev no-checkpoint
+    mount yaffs2 mtd@pds /pds nosuid nodev no-checkpoint
     mount ext3 /dev/block/mmcblk1p7 /pds nosuid nodev noatime nodiratime
     chown system system /pds
     chmod 0775 /pds
@@ -76,9 +76,9 @@ on post-fs
     chown system system /preinstall
 
 # bluetooth power up/down interface (wl127x Bluetooth and hci0)
-#    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
-#    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
-#    chmod 0660 /sys/class/rfkill/rfkill0/state
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
+    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
+    chmod 0660 /sys/class/rfkill/rfkill0/state
     chown bluetooth.bluetooth /sys/class/rfkill/rfkill1/type
     chown bluetooth.bluetooth /sys/class/rfkill/rfkill1/state
     chmod 0660 /sys/class/rfkill/rfkill1/state
@@ -95,7 +95,10 @@ on post-fs
     chown radio radio /pds/bp_nvm
     chmod 0770 /pds/bp_nvm
 
-#    mount rootfs rootfs / ro remount
+    # Tweaks
+    write /sys/block/mmcblk0/bdi/read_ahead_kb 2048
+
+    mount rootfs rootfs / ro remount
 
     # create logger folder
     mkdir /data/logger 0770 radio log
@@ -132,7 +135,7 @@ on post-fs-data
     mkdir /data/location 0771 radio radio
 
 # usbd permissions
-    mkdir /data/usbd 0777 system system
+#    mkdir /data/usbd 0777 system system
 
     # Create anr directory and change permission to 777 to save trace.txt
     mkdir /data/anr
@@ -159,8 +162,11 @@ on post-fs-data
     chown system system /data/tpapi/etc
     chown system system /data/tpapi/etc/tpa
     chown system system /data/tpapi/etc/tpa/persistent
-    chown root system /dev/socket
-    chown 0775 /dev/socket
+    #chown root system /dev/socket
+    #chown 0775 /dev/socket
+
+    # copy hostapd config
+    copy /system/etc/wifi/softap/hostapd.conf /data/misc/wifi/hostapd.conf
 
     setprop vold.post_fs_data_done 1
 
@@ -207,6 +213,15 @@ on init
     chmod 0660 /dev/smodule
     chmod 0666 /dev/ttyGS0
     chmod 0660 /dev/tcmd_driver
+
+    # Install kernel modules
+    insmod /system/lib/modules/netmux.ko
+    insmod /system/lib/modules/netmux_linkdriver.ko
+    insmod /system/lib/modules/modem_pm_driver.ko
+
+    insmod /system/lib/modules/xt_multiport.ko
+    insmod /system/lib/modules/xt_quota2.ko
+    insmod /system/lib/modules/xt_owner2.ko
 
 on boot
 
@@ -258,6 +273,8 @@ on boot
 
 #fix for torch
     chmod 0666 /sys/class/leds/spotlight/brightness
+
+
 # Core 
     insmod /system/lib/modules/symsearch.ko
 #    insmod /system/lib/modules/klogger.ko
@@ -285,40 +302,11 @@ on boot
 # Load Authentec VPN kernel module
     insmod /system/lib/modules/vpnclient.ko
 
-# Install kernel modules
-    insmod /system/lib/modules/netmux.ko
-    insmod /system/lib/modules/netmux_linkdriver.ko
-    insmod /system/lib/modules/modem_pm_driver.ko
-    insmod /system/lib/modules/xt_tcpmss.ko
-    insmod /system/lib/modules/xt_TCPMSS.ko
-    insmod /system/lib/modules/iptable_mangle.ko
-    insmod /system/lib/modules/xt_multiport.ko
-    insmod /system/lib/modules/xt_quota2.ko
-    insmod /system/lib/modules/xt_owner2.ko
+# Start srevices
+    exec /system/bin/mot_boot_mode
 
-#    insmod /system/lib/modules/tun.ko
-#    insmod /system/lib/modules/symsearch.ko
-#    insmod /system/lib/modules/mmcfix.ko
-#    insmod /system/lib/modules/usbled.ko
-#    insmod /system/lib/modules/gpiofix.ko
-
-# Cifs module is actually not compiled by us
-#    insmod /system/lib/modules/nls_utf8.ko
-#    insmod /system/lib/modules/slow-work.ko
-#    insmod /system/lib/modules/cifs.ko
-
-# Set core max size (2G)
-#    setrlimit 4 2147483648 2147483648
-
-# The properties introduced by moto
-on property:sys.chargeonly.mode=1
-#    start battd
-#    start console
-#    write /data/simpin lock
-#    exec /system/bin/charge_only_mode
-    class_reset main
-    class_reset late_start
-    class_start charger
+# Set core max size (2g)
+    setrlimit 4 2147483648 2147483648
 
 # Moto safe power down
 on property:sys.reboot=1
@@ -339,9 +327,9 @@ on property:service.adb.tcp.port=-1
     restart adbd
 
 # Adb ICS
-#on property:persist.sys.usb.config=*
-#    setprop sys.usb.config $persist.sys.usb.config
-on property:sys.usb.config=mass_storage,adb
+on property:persist.sys.usb.config=*
+    setprop sys.usb.config $persist.sys.usb.config
+#on property:sys.usb.config=mass_storage,adb
     # Made by usbd, but could be usefull later..
     # write /sys/devices/virtual/usb_composite/adb/enable 0
     # write /dev/usb_device_mode msc_adb
@@ -357,6 +345,15 @@ on property:service.adb.root=1
     restart adbd
     write /sys/devices/virtual/usb_composite/adb/enable 1
 
+on property:sys.chargeonly.mode=1
+    class_reset main
+    class_reset late_start
+    class_start charger
+    start console
+    start battd
+    start chargeonly
+    stop zygote
+
 service reboot_key /system/bin/reboot
     user system
     group root
@@ -367,7 +364,12 @@ service reboot_key /system/bin/reboot
 service usbd /system/bin/usbd
     class main
     user root
-    socket usbd stream 666 root system
+    #socket usbd stream 666 root system
+
+service nvm-daemon /system/bin/nvm_daemon
+    class main
+    user root
+    group radio
 
 service start_commdrv /system/bin/sh /system/etc/motorola/comm_drv/commdrv_fs.sh
     class main
@@ -375,6 +377,12 @@ service start_commdrv /system/bin/sh /system/etc/motorola/comm_drv/commdrv_fs.sh
     user radio
     group radio system cache
 
+service gkisystem /system/bin/gkisystem
+    class main
+    socket location_shim stream 660 radio system
+    socket gpshal_socket stream 660 radio system
+    socket opprofdaemon stream 660 radio system
+    group radio system
 
 service chargeonly system/bin/charge_only_mode
     group root
@@ -386,6 +394,11 @@ service battd /system/bin/battd
     socket battdsock stream 660 root system
     user root
     group system 9001
+    oneshot
+
+service ssmgrd /system/bin/ssmgrd
+    class main
+    group radio input system
     oneshot
 
 # Bluetooth services.
@@ -456,7 +469,7 @@ service iprenew_tiwlan0 /system/bin/dhcpcd -n
     disabled
     oneshot
 
-service baseimage /system/bin/cexec.out -v -T /system/lib/dsp/baseimage.dof
+service baseimage /system/bin/dspexec -v -T /system/lib/dsp/baseimage.dof
     class main
     user media
     group media graphics
@@ -481,6 +494,71 @@ service fmradio /system/bin/fmradioserver
 on property:dev.bootcomplete=1
     start savebpver
 #    start loadpreinstalls
+
+on property:sys.usb.config=adb
+    log "== init.venus2.usb.rc: on property:sys.usb.config=adb -----------------------"
+    exec /system/bin/am broadcast \
+        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
+        --ei USB_MODE_INDEX 5
+    start adbd
+    setprop sys.usb.state $sys.usb.config
+
+#on property:sys.usb.config=mass_storage,adb
+    #log "== init.venus2.usb.rc: on property:sys.usb.config=mass_storage,adb -----------------------"
+#    exec /system/bin/am broadcast \
+#        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
+#        --ei USB_MODE_INDEX 2
+#    start adbd
+#    setprop sys.usb.state $sys.usb.config
+
+#on property:sys.usb.config=mass_storage
+    #log "== init.venus2.usb.rc: on property:sys.usb.config=mass_storage -----------------------"
+#    exec /system/bin/am broadcast \
+#        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
+#        --ei USB_MODE_INDEX 2
+#    setprop sys.usb.state $sys.usb.config
+
+on property:sys.usb.config=rndis
+    log "== init.venus2.usb.rc: on property:sys.usb.config=rndis -----------------------"
+    exec /system/bin/am broadcast \
+        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
+        --ei USB_MODE_INDEX 3
+    setprop sys.usb.state $sys.usb.config
+
+on property:sys.usb.config=rndis,adb
+    log "== init.venus2.usb.rc: on property:sys.usb.config=rndis,adb -----------------------"
+    exec /system/bin/am broadcast \
+        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
+        --ei USB_MODE_INDEX 3
+    start adbd
+    setprop sys.usb.state $sys.usb.config
+
+on property:sys.usb.config=mtp
+    log "== init.venus2.usb.rc: on property:sys.usb.config=mtp -----------------------"
+    exec /system/bin/am broadcast \
+        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
+        --ei USB_MODE_INDEX 1
+    setprop sys.usb.state $sys.usb.config
+
+on property:sys.usb.config=mtp,adb
+    log "== init.venus2.usb.rc: on property:sys.usb.config=mtp,adb -----------------------"
+    exec /system/bin/am broadcast \
+        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
+        --ei USB_MODE_INDEX 1
+    start adbd
+    setprop sys.usb.state $sys.usb.config
+
+# Hack for working Voice Search button
+service voicesearch /system/bin/voicesearch.sh -v  	
+  class main
+  disabled
+  oneshot
+  keycodes 247
+
+#get BP version and save to misc
+service savebpver /system/bin/SaveBPVer
+    oneshot
+
 
 #get BP version and save to misc
 service savebpver /system/bin/SaveBPVer
