@@ -263,7 +263,7 @@ on boot
 #    insmod /system/lib/modules/klogger.ko
     insmod /system/lib/modules/thumbee.ko
 
-    insmod /system/lib/modules/pvr-off.ko pvrmajor=248
+    insmod /system/lib/modules/pvroff.ko pvrmajor=248
     write /sys/devices/platform/omapdss/overlay0/enabled 0
     write /sys/devices/platform/omapfb/graphics/fb0/size 4194304
     write /sys/devices/platform/omapdss/overlay0/enabled 1
