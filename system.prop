@@ -1,4 +1,4 @@
-ystem.prop for CDMA & GSM Droid Pro
+System.prop for CDMA & GSM Droid Pro
 #
 
 
@@ -53,6 +53,7 @@ mot.proximity.delay=90
 mot.proximity.distance=60
 persist.mot.proximity.touch=1
 ro.mot.hw.calibratedImager=1
+ro.sf.lcd_density=160
 
 # System
 ro.service.start.smc=1
