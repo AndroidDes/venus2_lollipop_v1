@@ -384,7 +384,7 @@ service gkisystem /system/bin/gkisystem
     socket opprofdaemon stream 660 radio system
     group radio system
 
-service chargeonly system/bin/charge_only_mode
+service charge system/bin/charge_only_mode
     group root
     oneshot
     disabled
