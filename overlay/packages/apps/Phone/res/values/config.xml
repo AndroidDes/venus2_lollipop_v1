@@ -137,4 +137,5 @@
 
     <!-- If true, removes the Voice Privacy option from Call Settings -->
     <bool name="config_voice_privacy_disable">false</bool>
+    <string name="voice_quality_param">motoVoiceQualityConfig</string>
 </resources>
