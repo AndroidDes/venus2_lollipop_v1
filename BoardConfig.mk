@@ -36,5 +36,5 @@ TARGET_PROVIDES_INIT_RC := true
 BOARD_MASS_STORAGE_FILE_PATH := "/sys/devices/platform/usb_mass_storage/lun0/file"
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/platform/usb_mass_storage/lun0/file"
 BOARD_USE_USB_MASS_STORAGE_SWITCH := true
-BOARD_CUSTOM_USB_CONTROLLER := ../../device/motorola/droid2we/UsbController.cpp
+BOARD_CUSTOM_USB_CONTROLLER := ../../device/motorola/venus2/UsbController.cpp
 BOARD_MTP_DEVICE := "/dev/mtp"
