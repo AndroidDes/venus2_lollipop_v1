@@ -1,6 +1,6 @@
 on fs
 
-# Mount mmc partitions
+    # Mount mmc partitions
     mkdir /pds 0775 system system
     mount ext3 /dev/block/mmcblk1p21 /system noatime nodiratime
     mount ext3 /dev/block/mmcblk1p21 /system ro remount
@@ -9,34 +9,33 @@ on fs
 
 on post-fs
 
-# Backward compatibility
+    # Backward compatibility
     symlink /dev /dev/netmux
     symlink /dev/ttyGS0 /dev/acm0
     symlink /dev/hp3a-omap /dev/hp3A-omap
-
     mount rootfs rootfs / rw remount
 
-# Busybox
+    # Busybox
     export HISTFILE /data/local/tmp/.ash_history
     export HISTFILESIZE 1000
     export ENV /system/etc/profile
 
-# Other global env variables
+    # Other global env variables
     export DSP_PATH /system/lib/dsp
 
-# Mount tmp, we dont have swap, use ramfs which can grow if required
+    # Mount tmp, we dont have swap, use ramfs which can grow if required
     mkdir /tmp
     mount ramfs ramfs /tmp size=512k relatime
     chmod 0777 /tmp
     chown system shell /tmp
 
-# Restore good uid, mount as ramfs reset to root root 755
+    # Restore good uid, mount as ramfs reset to root root 755
     chown root system /mnt/asec
     chmod 0755 /mnt/asec
     chown root system /mnt/obb
     chmod 0755 /mnt/obb
 
-# Configure kernel options
+    # Configure kernel options
     # Enable automatic power control for EHCI USB IPC
     write /sys/devices/platform/ehci-omap.0/usb1/power/level auto
     write /sys/devices/platform/ehci-omap.0/usb1/power/autosuspend 0
@@ -52,16 +51,13 @@ on post-fs
     write /sys/devices/system/cpu/cpu0/cpufreq/ondemand/sampling_rate 37500
     write /sys/power/sr_vdd1_autocomp 1
     write /sys/power/sr_vdd2_autocomp 1
-# Change ownership for vibrators
+    # Change ownership for vibrators
     chown system system /sys/class/timed_output/vibrator/enable
     chown system system /sys/class/timed_output/vibrator/sweep
     chmod 0660 /sys/class/timed_output/vibrator/enable
     chmod 0660 /sys/class/timed_output/vibrator/sweep
 
-# Mount mtd partitions
-    # mount /pds as r/w
-    # We chown/chmod /pds again so because mount is run as root + defaults
-    mount yaffs2 mtd@pds /pds nosuid nodev no-checkpoint
+    # Mount mtd partitions
     mount ext3 /dev/block/mmcblk1p7 /pds nosuid nodev noatime nodiratime
     chown system system /pds
     chmod 0775 /pds
@@ -69,13 +65,13 @@ on post-fs
     chown system shell /pds/public
     chmod 0775 /pds/public
 
-# Mount preinstall partition
+    # Mount preinstall partition
     mkdir /preinstall 0771 system system
     mount ext3 /dev/block/mmcblk1p23 /preinstall nosuid nodev noatime nodiratime
     chmod 0771 /preinstall
     chown system system /preinstall
 
-# bluetooth power up/down interface (wl127x Bluetooth and hci0)
+    # bluetooth power up/down interface (wl127x Bluetooth and hci0)
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
     chmod 0660 /sys/class/rfkill/rfkill0/state
@@ -83,9 +79,8 @@ on post-fs
     chown bluetooth.bluetooth /sys/class/rfkill/rfkill1/state
     chmod 0660 /sys/class/rfkill/rfkill1/state
 
-# Dont delete this line, used as event in bootmenu (cpu settings & postbootmenu)
+    # Dont delete this line, used as event in bootmenu (cpu settings & postbootmenu)
     exec /system/bin/logwrapper postbootmenu
-
 
     # following two dirs are for storing BP Flex and PDS files. NVM Daemon is using these folders
     mkdir /data/bp_nvm
@@ -109,7 +104,7 @@ on post-fs
     chmod 0777 /data/panicreports
 
 on post-fs-data
-# Create basic filesystem structure
+    # Create basic filesystem structure
     # we chown/chmod /pds again so because mount is run as root + defaults
     mkdir /pds/lost+found
     chown system shell /pds/public
@@ -134,7 +129,7 @@ on post-fs-data
     # create location directory
     mkdir /data/location 0771 radio radio
 
-# usbd permissions
+    # usbd permissions
     mkdir /data/usbd 0777 system system
 
     # Create anr directory and change permission to 777 to save trace.txt
@@ -162,8 +157,8 @@ on post-fs-data
     chown system system /data/tpapi/etc
     chown system system /data/tpapi/etc/tpa
     chown system system /data/tpapi/etc/tpa/persistent
-    #chown root system /dev/socket
-    #chown 0775 /dev/socket
+    chown root system /dev/socket
+    chown 0775 /dev/socket
 
     # copy hostapd config
     copy /system/etc/wifi/softap/hostapd.conf /data/misc/wifi/hostapd.conf
@@ -214,15 +209,6 @@ on init
     chmod 0666 /dev/ttyGS0
     chmod 0660 /dev/tcmd_driver
 
-    # Install kernel modules
-    insmod /system/lib/modules/netmux.ko
-    insmod /system/lib/modules/netmux_linkdriver.ko
-    insmod /system/lib/modules/modem_pm_driver.ko
-
-    insmod /system/lib/modules/xt_multiport.ko
-    insmod /system/lib/modules/xt_quota2.ko
-    insmod /system/lib/modules/xt_owner2.ko
-
 on boot
 
     # Enable panic on softlockup
@@ -239,7 +225,7 @@ on boot
     setprop ro.sys.atvc_allow_bp_log 0
     setprop ro.sys.atvc_allow_ap_mot_log 0
 
-# Change the ownership of led files.
+   # Change the ownership of led files.
    chown system system /sys/class/leds/lcd-backlight/als
    chown system system /sys/class/leds/lcd-backlight/pwm_mode
    chown system system /sys/class/leds/lcd-backlight/brightness
@@ -271,15 +257,15 @@ on boot
    chmod 0660 /sys/class/leds/adp8870-led7/brightness
    chown system system /sys/class/leds/adp8870-led7/brightness
 
-#fix for torch
+    #fix for torch
     chmod 0666 /sys/class/leds/spotlight/brightness
 
 
-# Core 
+    # Core 
     insmod /system/lib/modules/symsearch.ko
-#    insmod /system/lib/modules/klogger.ko
     insmod /system/lib/modules/thumbee.ko
 
+    # Graphics
     insmod /system/lib/modules/pvroff.ko pvrmajor=248
     write /sys/devices/platform/omapdss/overlay0/enabled 0
     write /sys/devices/platform/omapfb/graphics/fb0/size 4194304
@@ -289,8 +275,7 @@ on boot
     chmod 0666 /dev/pvrsrvkm
     exec /system/bin/pvrsrvinit
 
-
-# Load traffic shaping modules
+    # Install Kernel Modules
     insmod /system/lib/modules/ifb.ko
     insmod /system/lib/modules/act_mirred.ko
     insmod /system/lib/modules/sch_ingress.ko
@@ -298,11 +283,28 @@ on boot
     insmod /system/lib/modules/cls_u32.ko
     insmod /system/lib/modules/sch_htb.ko
     insmod /system/lib/modules/em_u32.ko
-
-# Load Authentec VPN kernel module
     insmod /system/lib/modules/vpnclient.ko
+    insmod /system/lib/modules/netmux.ko
+    insmod /system/lib/modules/netmux_linkdriver.ko
+    insmod /system/lib/modules/modem_pm_driver.ko
+    insmod /system/lib/modules/xt_tcpmss.ko
+    insmod /system/lib/modules/xt_TCPMSS.ko
+    insmod /system/lib/modules/iptable_raw.ko
+    insmod /system/lib/modules/xt_multiport.ko
+    insmod /system/lib/modules/xt_quota2.ko
+    insmod /system/lib/modules/xt_owner2.ko
+    insmod /system/lib/modules/ip6_tables.ko
+    insmod /system/lib/modules/ip6table_filter.ko
+    insmod /system/lib/modules/ip6table_raw.ko
+    insmod /system/lib/modules/ip6t_REJECT.ko
+    insmod /system/lib/modulnsmod /system/lib/modules/ifb.ko
 
-# Start srevices
+    # Filesystem
+    insmod /system/lib/modules/jbd2.ko
+    insmod /system/lib/modules/ext4.ko
+    insmod /system/lib/modules/sio-iosched.ko
+
+    # Start srevices
     exec /system/bin/mot_boot_mode
 
 # Set core max size (2g)
@@ -323,36 +325,23 @@ on property:init.svc.wpa_supplicant=stopped
 # Adb over Network
 on property:service.adb.tcp.port=5555
     restart adbd
+
 on property:service.adb.tcp.port=-1
     restart adbd
 
-# Adb ICS
-on property:persist.sys.usb.config=*
-    setprop sys.usb.config $persist.sys.usb.config
-#on property:sys.usb.config=mass_storage,adb
-    # Made by usbd, but could be usefull later..
-    # write /sys/devices/virtual/usb_composite/adb/enable 0
-    # write /dev/usb_device_mode msc_adb
-    # write /tmp/usbd_current_state usb_mode_msc_adb
-    # write /sys/devices/virtual/usb_composite/adb/enable 1
+on property:sys.usb.config=mass_storage,adb
     start adbd
+
 on property:sys.usb.config=mtp,adb
     start adbd
+
 on property:sys.usb.config=ptp,adb
     start adbd
+
 on property:service.adb.root=1
     write /sys/devices/virtual/usb_composite/adb/enable 0
     restart adbd
     write /sys/devices/virtual/usb_composite/adb/enable 1
-
-on property:sys.chargeonly.mode=1
-    class_reset main
-    class_reset late_start
-    class_start charger
-    start console
-    start battd
-    start chargeonly
-    stop zygote
 
 service reboot_key /system/bin/reboot
     user system
@@ -437,7 +426,7 @@ on property:tcmd.unload_wlan=2
 
 # Ecompass daemon
 service akmd2 /system/bin/akmd2
-    class main
+    class late_start
     user compass
     group compass misc input
 
