@@ -297,7 +297,6 @@ on boot
     insmod /system/lib/modules/ip6table_filter.ko
     insmod /system/lib/modules/ip6table_raw.ko
     insmod /system/lib/modules/ip6t_REJECT.ko
-    insmod /system/lib/modulnsmod /system/lib/modules/ifb.ko
 
     # Filesystem
     insmod /system/lib/modules/jbd2.ko
