@@ -24,7 +24,7 @@ PRODUCT_PACKAGES += \
 
 # Hijack files
 PRODUCT_COPY_FILES += \
-	$(DEVICE_PREBUILT)/etc/hijack-boot.zip:system/etc/hijack-boot.zip
+	device/motorola/venus2/hijack-boot.zip:system/etc/hijack-boot.zip
 
 # Keymaps
 PRODUCT_COPY_FILES += \
