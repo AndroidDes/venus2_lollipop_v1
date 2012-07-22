@@ -434,24 +434,29 @@ service wlan_loader /system/bin/wlan_loader -f /system/etc/wifi/fw_wlan1271.bin 
     class main
     disabled
     oneshot
+
 service wpa_supplicant /system/bin/wpa_supplicant -Dtiwlan0 -itiwlan0 -c /data/misc/wifi/wpa_supplicant.conf
     class main
     socket wpa_tiwlan0 dgram 660 wifi wifi
     disabled
     oneshot
+
 service wlan_ap_loader /system/bin/logwrapper /system/bin/tiap_loader -f /system/etc/wifi/fw_tiwlan_ap.bin -i /system/etc/wifi/tiwlan_ap.ini -e /pds/wifi/nvs_map.bin
     disabled
     oneshot
+
 service hostapd_netd /system/bin/hostapd -d /data/misc/wifi/hostapd.conf
     class main
     group wifi system inet net_admin
     socket tiap0 dgram 660 wifi wifi
     disabled
     oneshot
+
 service dhcpcd_tiwlan0 /system/bin/dhcpcd -ABKL
     class main
     disabled
     oneshot
+
 service iprenew_tiwlan0 /system/bin/dhcpcd -n
     class main
     disabled
@@ -462,79 +467,10 @@ service baseimage /system/bin/dspexec -v -T /system/lib/dsp/baseimage.dof
     user media
     group media graphics
     oneshot
-#service locDrv /system/bin/brcm_guci_drv -config /system/etc/gpsconfig.xml
-#    class main
-#    user radio
-#    group radio inet sdcard_rw
-service fmradio /system/bin/fmradioserver
-    class main
-    disabled
-    user system
-    group bluetooth net_bt_admin net_raw net_admin misc
-
-# 3D init
-#service pvrsrvinit /system/bin/pvrsrvinit
-#    class core
-#    user root
-#    group root
-#    oneshot
 
 on property:dev.bootcomplete=1
     start savebpver
 #    start loadpreinstalls
-
-on property:sys.usb.config=adb
-    log "== init.venus2.usb.rc: on property:sys.usb.config=adb -----------------------"
-    exec /system/bin/am broadcast \
-        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
-        --ei USB_MODE_INDEX 5
-    start adbd
-    setprop sys.usb.state $sys.usb.config
-
-#on property:sys.usb.config=mass_storage,adb
-    #log "== init.venus2.usb.rc: on property:sys.usb.config=mass_storage,adb -----------------------"
-#    exec /system/bin/am broadcast \
-#        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
-#        --ei USB_MODE_INDEX 2
-#    start adbd
-#    setprop sys.usb.state $sys.usb.config
-
-#on property:sys.usb.config=mass_storage
-    #log "== init.venus2.usb.rc: on property:sys.usb.config=mass_storage -----------------------"
-#    exec /system/bin/am broadcast \
-#        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
-#        --ei USB_MODE_INDEX 2
-#    setprop sys.usb.state $sys.usb.config
-
-on property:sys.usb.config=rndis
-    log "== init.venus2.usb.rc: on property:sys.usb.config=rndis -----------------------"
-    exec /system/bin/am broadcast \
-        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
-        --ei USB_MODE_INDEX 3
-    setprop sys.usb.state $sys.usb.config
-
-on property:sys.usb.config=rndis,adb
-    log "== init.venus2.usb.rc: on property:sys.usb.config=rndis,adb -----------------------"
-    exec /system/bin/am broadcast \
-        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
-        --ei USB_MODE_INDEX 3
-    start adbd
-    setprop sys.usb.state $sys.usb.config
-
-on property:sys.usb.config=mtp
-    log "== init.venus2.usb.rc: on property:sys.usb.config=mtp -----------------------"
-    exec /system/bin/am broadcast \
-        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
-        --ei USB_MODE_INDEX 1
-    setprop sys.usb.state $sys.usb.config
-
-on property:sys.usb.config=mtp,adb
-    log "== init.venus2.usb.rc: on property:sys.usb.config=mtp,adb -----------------------"
-    exec /system/bin/am broadcast \
-        -a com.motorola.intent.action.USB_MODE_SWITCH_FROM_UI \
-        --ei USB_MODE_INDEX 1
-    start adbd
-    setprop sys.usb.state $sys.usb.config
 
 # Hack for working Voice Search button
 service voicesearch /system/bin/voicesearch.sh -v  	
@@ -542,11 +478,6 @@ service voicesearch /system/bin/voicesearch.sh -v
   disabled
   oneshot
   keycodes 247
-
-#get BP version and save to misc
-service savebpver /system/bin/SaveBPVer
-    oneshot
-
 
 #get BP version and save to misc
 service savebpver /system/bin/SaveBPVer
