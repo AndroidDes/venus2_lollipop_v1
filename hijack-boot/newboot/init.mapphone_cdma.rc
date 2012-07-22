@@ -135,7 +135,7 @@ on post-fs-data
     mkdir /data/location 0771 radio radio
 
 # usbd permissions
-#    mkdir /data/usbd 0777 system system
+    mkdir /data/usbd 0777 system system
 
     # Create anr directory and change permission to 777 to save trace.txt
     mkdir /data/anr
@@ -364,7 +364,7 @@ service reboot_key /system/bin/reboot
 service usbd /system/bin/usbd
     class main
     user root
-    #socket usbd stream 666 root system
+    socket usbd stream 666 root system
 
 service nvm-daemon /system/bin/nvm_daemon
     class main
