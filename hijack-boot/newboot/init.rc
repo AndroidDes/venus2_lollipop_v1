@@ -24,15 +24,8 @@ on init
     export LOOP_MOUNTPOINT /mnt/obb
     export BOOTCLASSPATH /system/framework/core.jar:/system/framework/core-junit.jar:/system/framework/bouncycastle.jar:/system/framework/ext.jar:/system/framework/framework.jar:/system/framework/android.policy.jar:/system/framework/services.jar:/system/framework/apache-xml.jar:/system/framework/filterfw.jar
 
-    # Backward compatibility
-    symlink /system/etc /etc
-    symlink /sys/kernel/debug /d
-    symlink /mnt/sdcard /sdcard
-    symlink /system/vendor /vendor
-
     # Create cgroup mount point for cpu accounting
     mkdir /acct
-    mount cgroup none /acct cpuacct
     mkdir /acct/uid
 
     mkdir /system
@@ -122,17 +115,6 @@ on post-fs-data
     # storing dumps on platforms which do not have a dedicated dump partition.
     mkdir /data/dontpanic 0750 root log
 
-    # Collect apanic data, free resources and re-arm trigger
-    copy /proc/apanic_console /data/dontpanic/apanic_console
-    chown root log /data/dontpanic/apanic_console
-    chmod 0640 /data/dontpanic/apanic_console
-
-    copy /proc/apanic_threads /data/dontpanic/apanic_threads
-    chown root log /data/dontpanic/apanic_threads
-    chmod 0640 /data/dontpanic/apanic_threads
-
-    write /proc/apanic_console 1
-
     # Same reason as /data above
     chown system cache /cache
     chmod 0771 /cache
@@ -178,12 +160,12 @@ on post-fs-data
 
     # create dalvik-cache and double-check the perms
     mkdir /data/dalvik-cache 0771 system system
-    chown system system /data/dalvik-cache
-    chmod 0771 /data/dalvik-cache
-
     mkdir /cache/dalvik-cache 0771 system system
-    chown system system /cache/dalvik-cache
-    chmod 0771 /cache/dalvik-cache
+
+    # create resource-cache and double-check the perms
+    mkdir /data/resource-cache 0771 system system
+    chown system system /data/resource-cache
+    chmod 0771 /data/resource-cache
 
     # create the lost+found directories, so as to enforce our permissions
     mkdir /data/lost+found 0770
@@ -501,10 +483,4 @@ service dumpstate /system/bin/dumpstate -s
     class main
     socket dumpstate stream 0660 shell log
     disabled
-    oneshot
-
-service compcache /system/bin/handle_compcache
-    class main
-    user root
-    group root
     oneshot
